@@ -7,7 +7,13 @@ import time
 
 from prawcore.exceptions import PrawcoreException
 
-AVAILABLE_COMMANDS = ('help', 'interested', 'join', 'leave', 'uninterested')
+AVAILABLE_COMMANDS = {
+    'help': 'Output this help message.',
+    'interested': 'Indicate interest in the project.',
+    'join': 'Indicate intent to join the project.',
+    'leave': 'Leave the project.',
+    'uninterested': 'Remove your interest in the project.'
+}
 COMMAND_RE = re.compile(r'(?:\A|\s)!({})(?=\s|\Z)'
                         .format('|'.join(AVAILABLE_COMMANDS)))
 SEEN_COMMENT_PATH_TEMPLATE = os.path.join(os.environ['HOME'], '.config',
@@ -30,7 +36,11 @@ class Bot(object):
         self._seen_comments = self._load_seen_comments()
 
     def _command_help(self, comment):
-        comment.reply('help text will go here')
+        table_rows = ['command|description',
+                      ':---|:---']
+        for command, description in sorted(AVAILABLE_COMMANDS.items()):
+            table_rows.append('!{}|{}'.format(command, description))
+        comment.reply('\n'.join(table_rows))
 
     def _command_interested(self, comment):
         comment.reply('soon I will record your interest')
