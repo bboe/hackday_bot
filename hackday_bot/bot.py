@@ -1,8 +1,13 @@
 """hackday_bot.bot module."""
 import logging
+import re
 import time
 
 from prawcore.exceptions import PrawcoreException
+
+AVAILABLE_COMMANDS = ('help', 'interested', 'join', 'leave', 'uninterested')
+COMMAND_RE = re.compile(r'(?:\A|\s)!({})(?=\s|\Z)'
+                        .format('|'.join(AVAILABLE_COMMANDS)))
 
 
 logger = logging.getLogger(__package__)
@@ -18,8 +23,29 @@ class Bot(object):
         """
         self.subreddit = subreddit
 
+    def _command_help(self, comment):
+        comment.reply('help text will go here')
+
+    def _command_interested(self, comment):
+        comment.reply('soon I will record your interest')
+
+    def _command_join(self, comment):
+        comment.reply('soon I will record your sign up')
+
+    def _command_leave(self, comment):
+        comment.reply('soon I will record your abdication')
+
+    def _command_uninterested(self, comment):
+        comment.reply('soon I will record your uninterest')
+
     def _handle_comment(self, comment):
-        logger.info(comment)
+        commands = set(COMMAND_RE.findall(comment.body))
+        if len(commands) > 1:
+            comment.reply('Please provide only a single command.')
+        elif len(commands) == 1:
+            command = commands.pop()
+            getattr(self, '_command_{}'.format(command))(comment)
+            logger.debug('Handled {} by {}'.format(command, comment.author))
 
     def run(self):
         """Run the bot indefinitely."""
