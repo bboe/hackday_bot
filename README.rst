@@ -5,7 +5,8 @@ Hackday Bot
    :alt: Latest hackday_bot version
    :target: https://pypi.python.org/pypi/hackday_bot
 
-A Reddit bot that helps faciltiate ideas and selection of ideas for a hack day.
+A Reddit bot that helps facilitate the creation and selection of ideas for a
+hack day.
 
 
 Installation

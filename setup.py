@@ -30,7 +30,7 @@ setup(name=PACKAGE_NAME,
           'Programming Language :: Python :: 3.4',
           'Programming Language :: Python :: 3.5',
           'Programming Language :: Python :: Implementation :: CPython'],
-      description=('A Reddit bot that helps faciltiate the creation and '
+      description=('A Reddit bot that helps facilitate the creation and '
                    'selection of ideas for a hack day.'),
       entry_points={'console_scripts': ['hackday_bot = hackday_bot.cli:main']},
       install_requires=['docopt >=0.6.2, <1', 'praw >=5.0.0'],
