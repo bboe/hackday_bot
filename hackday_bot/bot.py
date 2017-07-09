@@ -43,21 +43,19 @@ class Bot(object):
                       ':---|:---']
         for command, description in sorted(AVAILABLE_COMMANDS.items()):
             table_rows.append('!{}|{}'.format(command, description))
-        comment.reply('\n'.join(table_rows))
+        return '\n'.join(table_rows)
 
     def _command_interested(self, comment):
-        comment.reply('soon I will record your interest')
+        return 'soon I will record your interest'
 
     def _command_join(self, comment):
-        message = self.members.add(comment)
-        comment.reply(message)
+        return self.members.add(comment)
 
     def _command_leave(self, comment):
-        message = self.members.remove(comment)
-        comment.reply(message)
+        return self.members.remove(comment)
 
     def _command_uninterested(self, comment):
-        comment.reply('soon I will record your uninterest')
+        return 'soon I will record your uninterest'
 
     def _handle_comment(self, comment):
         commands = set(COMMAND_RE.findall(comment.body))
@@ -65,7 +63,8 @@ class Bot(object):
             comment.reply('Please provide only a single command.')
         elif len(commands) == 1:
             command = commands.pop()
-            getattr(self, '_command_{}'.format(command))(comment)
+            message = getattr(self, '_command_{}'.format(command))(comment)
+            comment.reply(message)
             logger.debug('Handled {} by {}'.format(command, comment.author))
 
     def _load_seen_comments(self):
