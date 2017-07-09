@@ -121,6 +121,13 @@ class Members(object):
 
         self._save_projects('test')
 
+    def _comment_info(self, comment):
+        assignees = self.projects.setdefault(
+            comment.link_url, {'assignees': set(),
+                               'title': comment.link_title}
+        )['assignees']
+        return assignees, str(comment.author)
+
     def _load_projects(self):
         projects = {}
         url = None
@@ -146,13 +153,9 @@ class Members(object):
 
     def add(self, comment):
         """Add user who made comment to project associated with the comment."""
-        data = self.projects.setdefault(
-            comment.link_url, {'assignees': set(),
-                               'title': comment.link_title}
-        )
-        user = str(comment.author)
-        if user in data['assignees']:
+        assignees, user = self._comment_info(comment)
+        if user in assignees:
             return 'You have already joined this project.'
-        data['assignees'].add(str(comment.author))
+        assignees.add(user)
         self._save_projects('join {} to {}'.format(user, comment.link_id))
         return 'You have successfully joined the project.'
