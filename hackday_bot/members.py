@@ -26,11 +26,11 @@ class Members(object):
         self._save_projects('test')
 
     def _comment_info(self, comment):
-        assignees = self.projects.setdefault(
-            comment.link_url, {'assignees': set(),
+        data = self.projects.setdefault(
+            comment.link_url, {'assignees': set(), 'interested': set(),
                                'title': comment.link_title}
-        )['assignees']
-        return assignees, str(comment.author)
+        )
+        return data['assignees'], data['interested'], str(comment.author)
 
     def _load_projects(self):
         projects = {}
@@ -39,7 +39,11 @@ class Members(object):
             line = line.strip()
             if line.startswith('#'):
                 title, url = line[3:-1].split('](')
-                projects[url] = {'assignees': set(), 'title': title}
+                projects[url] = {'assignees': set(), 'interested': set(),
+                                 'title': title}
+            elif line.startswith('* [INTERESTED]'):
+                username = line.rsplit('/', 1)[1]
+                projects[url]['interested'].add(username)
             elif line.startswith('*'):
                 username = line.rsplit('/', 1)[1]
                 projects[url]['assignees'].add(username)
@@ -50,25 +54,37 @@ class Members(object):
         lines = []
         for url, data in sorted(self.projects.items(),
                                 key=lambda x: x[1]['title']):
-            if not data['assignees']:
+            if not (data['assignees'] or data['interested']):
                 continue
             lines.append('# [{}]({})'.format(data['title'], url))
             for member in sorted(data['assignees']):
                 lines.append('* /u/{}'.format(member))
+            for member in sorted(data['interested']):
+                lines.append('* [INTERESTED] /u/{}'.format(member))
         self._page.edit('\n'.join(lines), reason=reason)
 
     def add(self, comment):
         """Add user who made comment to project associated with the comment."""
-        assignees, user = self._comment_info(comment)
+        assignees, _interested, user = self._comment_info(comment)
         if user in assignees:
             return 'You have already joined this project.'
         assignees.add(user)
         self._save_projects('join {} to {}'.format(user, comment.link_id))
         return 'You have successfully joined the project.'
 
+    def add_interest(self, comment):
+        """Indicte user is interested in comment's project."""
+        _assignees, interested, user = self._comment_info(comment)
+        if user in interested:
+            return 'You have already expressed interest in this project.'
+        interested.add(user)
+        self._save_projects('{} interested in {}'
+                            .format(user, comment.link_id))
+        return 'You have successfully expressed your interest in this project.'
+
     def remove(self, comment):
         """Remove user who made comment from comment's project."""
-        assignees, user = self._comment_info(comment)
+        assignees, _interested, user = self._comment_info(comment)
         if user not in assignees:
             return 'You have not joined this project.'
         assignees.remove(user)

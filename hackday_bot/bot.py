@@ -46,7 +46,7 @@ class Bot(object):
         return '\n'.join(table_rows)
 
     def _command_interested(self, comment):
-        return 'soon I will record your interest'
+        return self.members.add_interest(comment)
 
     def _command_join(self, comment):
         return self.members.add(comment)
