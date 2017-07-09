@@ -51,7 +51,8 @@ class Bot(object):
         comment.reply(message)
 
     def _command_leave(self, comment):
-        comment.reply('soon I will record your abdication')
+        message = self.members.remove(comment)
+        comment.reply(message)
 
     def _command_uninterested(self, comment):
         comment.reply('soon I will record your uninterest')
@@ -146,6 +147,8 @@ class Members(object):
         lines = []
         for url, data in sorted(self.projects.items(),
                                 key=lambda x: x[1]['title']):
+            if not data['assignees']:
+                continue
             lines.append('# [{}]({})'.format(data['title'], url))
             for member in sorted(data['assignees']):
                 lines.append('* /u/{}'.format(member))
@@ -159,3 +162,12 @@ class Members(object):
         assignees.add(user)
         self._save_projects('join {} to {}'.format(user, comment.link_id))
         return 'You have successfully joined the project.'
+
+    def remove(self, comment):
+        """Remove user who made comment from comment's project."""
+        assignees, user = self._comment_info(comment)
+        if user not in assignees:
+            return 'You have not joined this project.'
+        assignees.remove(user)
+        self._save_projects('leave {} from {}'.format(user, comment.link_id))
+        return 'You have been removed from the project.'
