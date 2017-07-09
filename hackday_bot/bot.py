@@ -47,7 +47,8 @@ class Bot(object):
         comment.reply('soon I will record your interest')
 
     def _command_join(self, comment):
-        comment.reply('soon I will record your sign up')
+        message = self.members.add(comment)
+        comment.reply(message)
 
     def _command_leave(self, comment):
         comment.reply('soon I will record your abdication')
@@ -142,3 +143,16 @@ class Members(object):
             for member in sorted(data['assignees']):
                 lines.append('* /u/{}'.format(member))
         self._page.edit('\n'.join(lines), reason=reason)
+
+    def add(self, comment):
+        """Add user who made comment to project associated with the comment."""
+        data = self.projects.setdefault(
+            comment.link_url, {'assignees': set(),
+                               'title': comment.link_title}
+        )
+        user = str(comment.author)
+        if user in data['assignees']:
+            return 'You have already joined this project.'
+        data['assignees'].add(str(comment.author))
+        self._save_projects('join {} to {}'.format(user, comment.link_id))
+        return 'You have successfully joined the project.'
