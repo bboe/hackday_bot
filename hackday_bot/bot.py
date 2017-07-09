@@ -11,11 +11,12 @@ from .members import Members
 
 AVAILABLE_COMMANDS = {
     'help': 'Output this help message.',
-    'interested': 'Indicate interest in the project.',
-    'join': 'Indicate intent to join the project.',
-    'leave': 'Leave the project.',
-    'uninterested': 'Remove your interest in the project.'
-}
+    'interested': ('Indicate interest in this project. If you previously '
+                   'joined this project, your association is downgraded.'),
+    'join': ('Indicate intent to work on this project. If you previously '
+             'expressed interest in this project your association is '
+             'upgraded.'),
+    'leave': 'Remove any association you have with this project.'}
 COMMAND_RE = re.compile(r'(?:\A|\s)!({})(?=\s|\Z)'
                         .format('|'.join(AVAILABLE_COMMANDS)))
 SEEN_COMMENT_PATH_TEMPLATE = os.path.join(os.environ['HOME'], '.config',
@@ -53,9 +54,6 @@ class Bot(object):
 
     def _command_leave(self, comment):
         return self.members.remove(comment)
-
-    def _command_uninterested(self, comment):
-        return 'soon I will record your uninterest'
 
     def _handle_comment(self, comment):
         commands = set(COMMAND_RE.findall(comment.body))

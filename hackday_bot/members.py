@@ -65,18 +65,22 @@ class Members(object):
 
     def add(self, comment):
         """Add user who made comment to project associated with the comment."""
-        assignees, _interested, user = self._comment_info(comment)
+        assignees, interested, user = self._comment_info(comment)
         if user in assignees:
             return 'You have already joined this project.'
+        elif user in interested:
+            interested.remove(user)
         assignees.add(user)
-        self._save_projects('join {} to {}'.format(user, comment.link_id))
-        return 'You have successfully joined the project.'
+        self._save_projects('{} joined {}'.format(user, comment.link_id))
+        return 'You have successfully joined this project.'
 
     def add_interest(self, comment):
         """Indicte user is interested in comment's project."""
-        _assignees, interested, user = self._comment_info(comment)
+        assignees, interested, user = self._comment_info(comment)
         if user in interested:
             return 'You have already expressed interest in this project.'
+        elif user in assignees:
+            assignees.remove(user)
         interested.add(user)
         self._save_projects('{} interested in {}'
                             .format(user, comment.link_id))
@@ -84,9 +88,12 @@ class Members(object):
 
     def remove(self, comment):
         """Remove user who made comment from comment's project."""
-        assignees, _interested, user = self._comment_info(comment)
-        if user not in assignees:
-            return 'You have not joined this project.'
-        assignees.remove(user)
-        self._save_projects('leave {} from {}'.format(user, comment.link_id))
-        return 'You have been removed from the project.'
+        assignees, interested, user = self._comment_info(comment)
+        if user in assignees:
+            assignees.remove(user)
+        elif user in interested:
+            interested.remove(user)
+        else:
+            return 'You are not associated with this project.'
+        self._save_projects('{} left {}'.format(user, comment.link_id))
+        return 'You have been removed from this project.'
