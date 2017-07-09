@@ -61,6 +61,7 @@ class Members(object):
                 lines.append('* /u/{}'.format(member))
             for member in sorted(data['interested']):
                 lines.append('* [INTERESTED] /u/{}'.format(member))
+            lines.append('')
         self._page.edit('\n'.join(lines), reason=reason)
 
     def add(self, comment):
