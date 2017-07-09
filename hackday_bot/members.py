@@ -64,6 +64,14 @@ class Members(object):
             lines.append('')
         self._page.edit('\n'.join(lines), reason=reason)
 
+    def _update_flair(self, comment, assignees, interested):
+        flair = []
+        if assignees:
+            flair.append('{} {}'.format(len(assignees), 'joined'))
+        if interested:
+            flair.append('{} {}'.format(len(interested), 'interested'))
+        comment.submission.mod.flair('|'.join(flair))
+
     def add(self, comment):
         """Add user who made comment to project associated with the comment."""
         assignees, interested, user = self._comment_info(comment)
@@ -73,6 +81,7 @@ class Members(object):
             interested.remove(user)
         assignees.add(user)
         self._save_projects('{} joined {}'.format(user, comment.link_id))
+        self._update_flair(comment, assignees, interested)
         return 'You have successfully joined this project.'
 
     def add_interest(self, comment):
@@ -85,7 +94,8 @@ class Members(object):
         interested.add(user)
         self._save_projects('{} interested in {}'
                             .format(user, comment.link_id))
-        return 'You have successfully expressed your interest in this project.'
+        self._update_flair(comment, assignees, interested)
+        return 'You have successfully expressed interest in this project.'
 
     def remove(self, comment):
         """Remove user who made comment from comment's project."""
@@ -97,4 +107,5 @@ class Members(object):
         else:
             return 'You are not associated with this project.'
         self._save_projects('{} left {}'.format(user, comment.link_id))
+        self._update_flair(comment, assignees, interested)
         return 'You have been removed from this project.'
