@@ -58,11 +58,12 @@ class Bot(object):
     def _handle_comment(self, comment):
         commands = set(COMMAND_RE.findall(comment.body))
         if len(commands) > 1:
-            comment.reply('Please provide only a single command.')
+            comment.reply(
+                self._template('Please provide only a single command.'))
         elif len(commands) == 1:
             command = commands.pop()
             message = getattr(self, '_command_{}'.format(command))(comment)
-            comment.reply(message)
+            comment.reply(self._template(message))
             logger.debug('Handled {} by {}'.format(command, comment.author))
 
     def _load_seen_comments(self):
@@ -79,6 +80,12 @@ class Bot(object):
             json.dump(sorted(self._seen_comments), fp)
         logger.debug('Recorded {} seen comments'
                      .format(len(self._seen_comments)))
+
+    def _template(self, message):
+        return '\n\n'.join([
+            message, '[See All Projects with Members]({})'.format(
+                self.members.wiki_link),
+            '> [Hackday Bot](https://github.com/bboe/hackday_bot) by BBoe'])
 
     def run(self):
         """Run the bot indefinitely."""

@@ -22,8 +22,7 @@ class Members(object):
         except NotFound:
             self._page = subreddit.wiki.create('projects', '')
             self.projects = {}
-
-        self._save_projects('test')
+        self.wiki_link = '/' + self._page._info_path()
 
     def _comment_info(self, comment):
         data = self.projects.setdefault(
