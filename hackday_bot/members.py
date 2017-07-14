@@ -37,7 +37,7 @@ class Members(object):
         for line in self._page.content_md.split('\n'):
             line = line.strip()
             if line.startswith('#'):
-                title, url = line[3:-1].split('](')
+                title, url = line[5:-1].split('](')
                 projects[url] = {'assignees': set(), 'interested': set(),
                                  'title': title}
             elif line.startswith('* [INTERESTED]'):
@@ -55,7 +55,7 @@ class Members(object):
                                 key=lambda x: x[1]['title']):
             if not (data['assignees'] or data['interested']):
                 continue
-            lines.append('# [{}]({})'.format(data['title'], url))
+            lines.append('### [{}]({})'.format(data['title'], url))
             for member in sorted(data['assignees']):
                 lines.append('* /u/{}'.format(member))
             for member in sorted(data['interested']):
