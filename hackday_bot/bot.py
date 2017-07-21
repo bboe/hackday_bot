@@ -17,7 +17,7 @@ AVAILABLE_COMMANDS = {
              'expressed interest in this project your association is '
              'upgraded.'),
     'leave': 'Remove any association you have with this project.'}
-COMMAND_RE = re.compile(r'(?:\A|\s)!({})(?=\s|\Z)'
+COMMAND_RE = re.compile(r'(?:\A|\s)`?!({})`?(?=\s|\Z)'
                         .format('|'.join(AVAILABLE_COMMANDS)))
 SEEN_COMMENT_PATH_TEMPLATE = os.path.join(os.environ['HOME'], '.config',
                                           'hackday_bot_comments_{}.json')
